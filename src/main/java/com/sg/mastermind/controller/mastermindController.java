@@ -32,4 +32,24 @@ public class mastermindController {
         return service.createNewGame();
     }
     
+    @PostMapping("/guess")
+    public Round guess(@RequestBody Round round) {
+        return service.guess(round);   
+    }
+    
+    @GetMapping("/game")
+    public List<Game> listAllGames(){
+        return service.getAllGames();
+    }
+    
+    @GetMapping("/game/{gameID}")
+    public Game getGame(@PathVariable("gameID") int gameID){
+        return service.getGameByID(gameID);
+    }
+    
+    @GetMapping("/round/{gameID}")
+    public List<Round> getRounds(@PathVariable("gameID") int gameID){
+        return service.getRoundsByGameID(gameID);
+    }
+    
 }

@@ -4,6 +4,7 @@ import com.sg.mastermind.dao.gameDao;
 import com.sg.mastermind.dao.roundDao;
 import com.sg.mastermind.entity.Game;
 import com.sg.mastermind.entity.Round;
+import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,8 +103,59 @@ public class mastermindServiceLayer{
         return finishedRound;
     }
     
-//    public String calculateResult(String correctAnswer, String userGuess){
-//        
-//    }
     
+    //Calculate the result of the round
+    public static String calculateResult(String correctAnswer, String userGuess){
+        char[] first = correctAnswer.toCharArray();
+        char[] second = userGuess.toCharArray();
+        
+        int e = 0;
+        int p = 0;
+        
+        for(int i = 0; i<first.length; i++){
+            char str = second[i];
+            String pop = Character.toString(str);
+            if (correctAnswer.contains(pop)){
+                if(first[i] == second[i]){
+                    e++;
+                }
+                else
+                    p++;
+            }
+        }
+        String result = "e:" + e + ":p:" + p;
+        return result;
+    }
+    
+    //Returns a list of all games
+    public List<Game> getAllGames(){
+        //Store all the names in a list
+        List<Game> allGames = GD.getAllGames();
+        
+        //Make sure games in progess are not displayed
+        for (Game g: allGames){
+            if(g.getGameStatus() == true){
+                g.setAnswer("Nice try buddy.");
+            }
+        }
+        return allGames;
+    }
+    
+    
+    //Returns a game based on ID
+    public Game getGameByID(int gameID){
+        //Retrieve the game
+        Game currentGame = GD.getGameById(gameID);
+        
+        //If in progress, hide answer
+        if(currentGame.getGameStatus() == true){
+                currentGame.setAnswer("Nice try buddy.");
+            }
+        return currentGame;
+    }
+    
+    //Gets all the rounds of a specific game
+    public List<Round> getRoundsByGameID(int gameID){
+        return RD.getAllRoundsByGameID(gameID);
+    }
 }

@@ -18,10 +18,10 @@ public class roundDaoDBImpl implements roundDao{
     JdbcTemplate jdbc;
     
     @Override
-    public List<Round> getAllRoundsByGameId(int gameID) {
+    public List<Round> getAllRoundsByGameID(int gameID) {
         try {
         final String SELECT_ROUNDS_BY_GAMEID = "SELECT * FROM round "
-                + "WHERE gameID = ?";
+                + "WHERE gameID = ? ORDER BY roundTime";
         List<Round> allRounds = jdbc.query(SELECT_ROUNDS_BY_GAMEID, new RoundMapper(), gameID);
         return allRounds;
         } catch(DataAccessException ex) {
@@ -30,7 +30,7 @@ public class roundDaoDBImpl implements roundDao{
     }
 
     @Override
-    public Round getRoundById(int roundID) {
+    public Round getRoundByID(int roundID) {
         try {
             final String SELECT_ROUND_BY_ID = "SELECT * FROM round WHERE roundID = ?";
             return jdbc.queryForObject(SELECT_ROUND_BY_ID, new RoundMapper(), roundID);
