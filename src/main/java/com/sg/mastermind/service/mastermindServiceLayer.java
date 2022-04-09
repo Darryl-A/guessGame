@@ -163,6 +163,9 @@ public class mastermindServiceLayer{
     
     //Gets all the rounds of a specific game
     public List<Round> getRoundsByGameID(int gameID){
-        return RD.getAllRoundsByGameID(gameID);
+        
+        //Store all the rounds
+        List<Round> allRounds = RD.getAllRoundsByGameID(gameID);
+        return allRounds;
     }
 }
