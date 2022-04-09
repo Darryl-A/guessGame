@@ -8,18 +8,23 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  * 
  * @author darrylanthony
  */
+@Component
 public class mastermindServiceLayer{
     //Import the DI for both Daos
-    @Autowired
-    gameDao GD;
+    private final gameDao GD;
+    private final roundDao RD;
     
-    @Autowired
-    roundDao RD;
+    public mastermindServiceLayer(gameDao GD, roundDao RD){
+        this.GD = GD;
+        this.RD = RD;
+    }
     
     //Create a new game
     public int createNewGame(){
@@ -78,7 +83,7 @@ public class mastermindServiceLayer{
     public Round guess (Round round){
         
         //Get the round id
-        int roundID = round.getRoundID();
+        int roundID = round.getGameID();
         
         //Get the game being played
         Game currentGame = GD.getGameById(roundID);
@@ -92,6 +97,9 @@ public class mastermindServiceLayer{
         //Use the formula to see if answer is correct
         String roundResult = calculateResult(correctAnswer, userGuess);
         
+        //Update the result
+        round.setResult(roundResult);
+        
         //If guess is correct,
         if(userGuess.equals(correctAnswer)){
             currentGame.setGameStatus(false);
@@ -99,8 +107,7 @@ public class mastermindServiceLayer{
         }
         
         //Finally, add the round.
-        Round finishedRound = RD.addRound(round);
-        return finishedRound;
+        return RD.addRound(round);
     }
     
     

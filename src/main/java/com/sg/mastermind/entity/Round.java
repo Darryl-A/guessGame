@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 public class Round{
     private int roundID;
     private String result;
-    private LocalDateTime roundTime;
+    private LocalDateTime roundTime = LocalDateTime.now();
     private String guess;
     private int gameID;
     

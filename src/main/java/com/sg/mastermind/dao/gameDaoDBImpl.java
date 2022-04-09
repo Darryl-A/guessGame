@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,22 +13,27 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+@Profile("database")
 public class gameDaoDBImpl implements gameDao{
     
+    private final JdbcTemplate jdbcTemplate;
+
     @Autowired
-    JdbcTemplate jdbc;
+    public gameDaoDBImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Override
     public List<Game> getAllGames() {
         final String SELECT_ALL_GAMES = "SELECT * FROM game";
-        return jdbc.query(SELECT_ALL_GAMES, new GameMapper());
+        return jdbcTemplate.query(SELECT_ALL_GAMES, new GameMapper());
     }
 
     @Override
     public Game getGameById(int gameID) {
         try {
             final String SELECT_GAME_BY_ID = "SELECT * FROM game WHERE gameID = ?";
-            return jdbc.queryForObject(SELECT_GAME_BY_ID, new GameMapper(), gameID);
+            return jdbcTemplate.queryForObject(SELECT_GAME_BY_ID, new GameMapper(), gameID);
         } catch(DataAccessException ex) {
             return null;
         }
@@ -37,11 +43,11 @@ public class gameDaoDBImpl implements gameDao{
     @Transactional
     public Game addGame(Game game) {
         final String INSERT_GAME = "INSERT INTO game(gameStatus, answer) VALUES(?,?)";
-        jdbc.update(INSERT_GAME, 
+        jdbcTemplate.update(INSERT_GAME, 
                 game.getGameStatus(), 
                 game.getAnswer());
         
-        int newId = jdbc.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+        int newId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
         game.setGameID(newId);
         return game;
     }
@@ -49,7 +55,7 @@ public class gameDaoDBImpl implements gameDao{
     @Override
     public void updateGame(Game game) {
         final String UPDATE_GAME = "UPDATE game SET gameStatus = ?,  WHERE gameID = ?";
-        jdbc.update(UPDATE_GAME,
+        jdbcTemplate.update(UPDATE_GAME,
                 game.getGameStatus(),
                 game.getGameID());
     }
@@ -57,10 +63,10 @@ public class gameDaoDBImpl implements gameDao{
     @Override
     public void deleteGameById(int gameID) {
         final String DELETE_GAME_FROM_ROUND = "DELETE FROM round WHERE gameID = ? ";
-        jdbc.update(DELETE_GAME_FROM_ROUND, gameID);
+        jdbcTemplate.update(DELETE_GAME_FROM_ROUND, gameID);
         
         final String DELETE_GAME ="DELETE FROM game WHERE gameID = ?";
-        jdbc.update(DELETE_GAME,gameID);
+        jdbcTemplate.update(DELETE_GAME,gameID);
     }
     
     public static final class GameMapper implements RowMapper<Game> {

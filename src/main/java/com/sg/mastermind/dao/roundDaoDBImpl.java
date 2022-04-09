@@ -6,23 +6,29 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Profile("database")
 public class roundDaoDBImpl implements roundDao{
 
+    private final JdbcTemplate jdbcTemplate;
+
     @Autowired
-    JdbcTemplate jdbc;
+    public roundDaoDBImpl(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
     
     @Override
     public List<Round> getAllRoundsByGameID(int gameID) {
         try {
         final String SELECT_ROUNDS_BY_GAMEID = "SELECT * FROM round "
                 + "WHERE gameID = ? ORDER BY roundTime";
-        List<Round> allRounds = jdbc.query(SELECT_ROUNDS_BY_GAMEID, new RoundMapper(), gameID);
+        List<Round> allRounds = jdbcTemplate.query(SELECT_ROUNDS_BY_GAMEID, new RoundMapper(), gameID);
         return allRounds;
         } catch(DataAccessException ex) {
             return null;
@@ -33,7 +39,7 @@ public class roundDaoDBImpl implements roundDao{
     public Round getRoundByID(int roundID) {
         try {
             final String SELECT_ROUND_BY_ID = "SELECT * FROM round WHERE roundID = ?";
-            return jdbc.queryForObject(SELECT_ROUND_BY_ID, new RoundMapper(), roundID);
+            return jdbcTemplate.queryForObject(SELECT_ROUND_BY_ID, new RoundMapper(), roundID);
         } catch(DataAccessException ex) {
             return null;
         }    
@@ -41,13 +47,14 @@ public class roundDaoDBImpl implements roundDao{
 
     @Override
     public Round addRound(Round round) {
-        final String INSERT_ROUND = "INSERT INTO round(result, guess, gameID) VALUES(?,?,?)";
-        jdbc.update(INSERT_ROUND, 
+        final String INSERT_ROUND = "INSERT INTO round(result, guess, gameID,roundTime) VALUES(?,?,?,?)";
+        jdbcTemplate.update(INSERT_ROUND, 
                 round.getResult(), 
                 round.getGuess(),
-                round.getGameID());
+                round.getGameID(),
+                round.getGuessTime());
         
-        int newId = jdbc.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+        int newId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
         round.setRoundID(newId);
         return round;
     }
