@@ -1,6 +1,7 @@
 package com.sg.mastermind.entity;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * 
@@ -75,6 +76,44 @@ public class Round{
 
     public void setGameID(int gameID) {
         this.gameID = gameID;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + this.roundID;
+        hash = 59 * hash + Objects.hashCode(this.result);
+        hash = 59 * hash + Objects.hashCode(this.roundTime);
+        hash = 59 * hash + Objects.hashCode(this.guess);
+        hash = 59 * hash + this.gameID;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Round other = (Round) obj;
+        if (this.roundID != other.roundID) {
+            return false;
+        }
+        if (this.gameID != other.gameID) {
+            return false;
+        }
+        if (!Objects.equals(this.result, other.result)) {
+            return false;
+        }
+        if (!Objects.equals(this.guess, other.guess)) {
+            return false;
+        }
+        return Objects.equals(this.roundTime, other.roundTime);
     }
 
 }

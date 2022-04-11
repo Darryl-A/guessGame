@@ -13,15 +13,17 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-@Profile("database")
+//@Profile("database")
 public class gameDaoDBImpl implements gameDao{
     
-    private final JdbcTemplate jdbcTemplate;
+    //private final JdbcTemplate jdbcTemplate;
 
+//    @Autowired
+//    public gameDaoDBImpl(JdbcTemplate jdbcTemplate) {
+//        this.jdbcTemplate = jdbcTemplate;
+//    }
     @Autowired
-    public gameDaoDBImpl(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    JdbcTemplate jdbcTemplate;
 
     @Override
     public List<Game> getAllGames() {
@@ -54,7 +56,7 @@ public class gameDaoDBImpl implements gameDao{
 
     @Override
     public void updateGame(Game game) {
-        final String UPDATE_GAME = "UPDATE game SET gameStatus = ?,  WHERE gameID = ?";
+        final String UPDATE_GAME = "UPDATE game SET gameStatus = ?  WHERE gameID = ?";
         jdbcTemplate.update(UPDATE_GAME,
                 game.getGameStatus(),
                 game.getGameID());

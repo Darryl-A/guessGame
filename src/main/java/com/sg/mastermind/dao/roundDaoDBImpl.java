@@ -11,9 +11,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-@Profile("database")
+//@Profile("database")
 public class roundDaoDBImpl implements roundDao{
 
     private final JdbcTemplate jdbcTemplate;
@@ -24,12 +25,14 @@ public class roundDaoDBImpl implements roundDao{
     }
     
     @Override
+    @Transactional
     public List<Round> getAllRoundsByGameID(int gameID) {
         try {
         final String SELECT_ROUNDS_BY_GAMEID = "SELECT * FROM round "
-                + "WHERE gameID = ? ORDER BY roundTime";
+                + "WHERE gameID = ?";
         List<Round> allRounds = jdbcTemplate.query(SELECT_ROUNDS_BY_GAMEID, new RoundMapper(), gameID);
         return allRounds;
+        //return jdbcTemplate.query(SELECT_ROUNDS_BY_GAMEID, new RoundMapper(), gameID);
         } catch(DataAccessException ex) {
             return null;
         }
@@ -46,6 +49,7 @@ public class roundDaoDBImpl implements roundDao{
     }
 
     @Override
+    @Transactional
     public Round addRound(Round round) {
         final String INSERT_ROUND = "INSERT INTO round(result, guess, gameID,roundTime) VALUES(?,?,?,?)";
         jdbcTemplate.update(INSERT_ROUND, 
@@ -56,7 +60,7 @@ public class roundDaoDBImpl implements roundDao{
         
         int newId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
         round.setRoundID(newId);
-        return round;
+        return getRoundByID(newId);
     }
     
     public static final class RoundMapper implements RowMapper<Round> {
@@ -64,7 +68,7 @@ public class roundDaoDBImpl implements roundDao{
         @Override
         public Round mapRow(ResultSet rs, int index) throws SQLException {
             Round round = new Round();
-            round.setRoundID(rs.getInt("round_id"));
+            round.setRoundID(rs.getInt("roundID"));
             round.setResult(rs.getString("result"));
             Timestamp timestamp = rs.getTimestamp("roundTime");
             round.setGuessTime(timestamp.toLocalDateTime());
